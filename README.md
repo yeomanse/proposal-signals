@@ -347,13 +347,13 @@ The `Watcher` interface defined above gives the basis for implementing typical J
 // NOTE: This scheduling logic is too basic to be useful. Do not copy/paste.
 let pending = false;
 
-let w = new Signal.subtle.Watcher(self => {
+let w = new Signal.subtle.Watcher(() => {
     if (!pending) {
         pending = true;
         queueMicrotask(() => {
             pending = false;
-            for (let s of self.getPending()) s.get();
-            self.watch();
+            for (let s of this.getPending()) s.get();
+            this.watch();
         });
     }
 });
@@ -384,7 +384,7 @@ Both computed and state Signals are garbage-collected like any JS values. But Wa
 `Signal.subtle.untrack` is an escape hatch allowing reading Signals *without* tracking those reads. This capability is unsafe because it allows the creation of computed Signals whose value depends on other Signals, but which aren't updated when those Signals change. It should be used when the untracked accesses will not change the result of the computation.
 
 <!--
-TODO: Show example where it's a good idea to use untrack
+TOOD: Show example where it's a good idea to use untrack
 
 ### Using watched/unwatched
 
