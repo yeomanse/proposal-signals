@@ -15,7 +15,7 @@
  */
 
 /* eslint-disable @typescript-eslint/no-this-alias */
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi, beforeEach } from "vitest";
 import { Signal } from './wrapper.js';
 
 describe("Signal.State", () => {
@@ -45,6 +45,47 @@ describe("Computed", () => {
     expect(stateSignal.get()).toEqual(5);
     expect(computedSignal.get()).toEqual(10);
   });
+
+  describe("isPending", () => {
+
+    let stateSignal;
+    let computedSignal;
+    beforeEach(() => {
+      stateSignal = new Signal.State(1);
+
+      computedSignal = new Signal.Computed(() => {
+        const f = stateSignal.get() * 2;
+        return f;
+      });
+    })
+
+    it("returns true before initial get", () => {
+      // pending on creation before initial get
+      expect(computedSignal.isPending()).toEqual(true);
+    });
+
+    it("returns false after initial get", () => {
+      expect(computedSignal.get()).toEqual(2);
+
+      expect(computedSignal.isPending()).toEqual(false);
+    });
+
+    it("returns false after dependency set if not watched", () => {
+      expect(computedSignal.get()).toEqual(2);
+      stateSignal.set(2);
+      expect(computedSignal.isPending()).toEqual(false);
+    });
+
+    it("returns true after dependency set if watched and false after get", () => {
+      expect(computedSignal.get()).toEqual(2);
+      const watcher = new Signal.subtle.Watcher(() => {});
+      watcher.watch(computedSignal);
+      stateSignal.set(2);
+      expect(computedSignal.isPending()).toEqual(true);
+      expect(computedSignal.get()).toEqual(4);
+      expect(computedSignal.isPending()).toEqual(false);
+    });
+  })
 });
 
 describe("Watcher", () => {

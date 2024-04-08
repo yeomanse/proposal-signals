@@ -129,6 +129,10 @@ export class Computed<T> {
       );
     return computedGet(this[NODE]);
   }
+
+  isPending(): boolean {
+    return this[NODE].dirty;
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
